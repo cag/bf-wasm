@@ -1,2 +1,3 @@
 # bf-wasm
-LibBF (big float library) in WASM
+
+[LibBF](https://bellard.org/libbf/) [WebAssembly](https://webassembly.org/) module.

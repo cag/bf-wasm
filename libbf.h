@@ -205,8 +205,8 @@ WEBASSEMBLY_EXPORT int bf_remainder(bf_t *r, const bf_t *a, const bf_t *b, limb_
                  bf_flags_t flags);
 WEBASSEMBLY_EXPORT int bf_remquo(slimb_t *pq, bf_t *r, const bf_t *a, const bf_t *b, limb_t prec,
               bf_flags_t flags);
-int bf_pow_ui(bf_t *r, const bf_t *a, limb_t b, limb_t prec,
-              WEBASSEMBLY_EXPORT bf_flags_t flags);
+WEBASSEMBLY_EXPORT int bf_pow_ui(bf_t *r, const bf_t *a, limb_t b, limb_t prec,
+              bf_flags_t flags);
 WEBASSEMBLY_EXPORT int bf_pow_ui_ui(bf_t *r, limb_t a1, limb_t b, limb_t prec, bf_flags_t flags);
 WEBASSEMBLY_EXPORT int bf_rint(bf_t *r, limb_t prec, bf_flags_t flags);
 WEBASSEMBLY_EXPORT int bf_round(bf_t *r, limb_t prec, bf_flags_t flags);
@@ -279,16 +279,16 @@ WEBASSEMBLY_EXPORT size_t bf_ftoa(char **pbuf, const bf_t *a, int radix, limb_t 
 WEBASSEMBLY_EXPORT int bf_get_int32(int *pres, const bf_t *a, int flags);
 WEBASSEMBLY_EXPORT int bf_get_int64(int64_t *pres, const bf_t *a, int flags);
 
-/* the following functions are WEBASSEMBLY_EXPORTed for testing only. */
-WEBASSEMBLY_EXPORT void bf_print_str(const char *str, const bf_t *a);
-WEBASSEMBLY_EXPORT void bf_resize(bf_t *r, limb_t len);
-WEBASSEMBLY_EXPORT int bf_get_fft_size(int *pdpl, int *pnb_mods, limb_t len);
-WEBASSEMBLY_EXPORT void bf_recip(bf_t *r, const bf_t *a, limb_t prec);
-WEBASSEMBLY_EXPORT void bf_rsqrt(bf_t *a, const bf_t *x, limb_t prec);
-WEBASSEMBLY_EXPORT int bf_normalize_and_round(bf_t *r, limb_t prec1, bf_flags_t flags);
-WEBASSEMBLY_EXPORT int bf_can_round(const bf_t *a, slimb_t prec, bf_rnd_t rnd_mode, slimb_t k);
-WEBASSEMBLY_EXPORT slimb_t bf_mul_log2_radix(slimb_t a1, unsigned int radix, int is_inv,
-                          int is_ceil1);
+// /* the following functions are exported for testing only. */
+// WEBASSEMBLY_EXPORT void bf_print_str(const char *str, const bf_t *a);
+// WEBASSEMBLY_EXPORT void bf_resize(bf_t *r, limb_t len);
+// WEBASSEMBLY_EXPORT int bf_get_fft_size(int *pdpl, int *pnb_mods, limb_t len);
+// WEBASSEMBLY_EXPORT void bf_recip(bf_t *r, const bf_t *a, limb_t prec);
+// WEBASSEMBLY_EXPORT void bf_rsqrt(bf_t *a, const bf_t *x, limb_t prec);
+// WEBASSEMBLY_EXPORT int bf_normalize_and_round(bf_t *r, limb_t prec1, bf_flags_t flags);
+// WEBASSEMBLY_EXPORT int bf_can_round(const bf_t *a, slimb_t prec, bf_rnd_t rnd_mode, slimb_t k);
+// WEBASSEMBLY_EXPORT slimb_t bf_mul_log2_radix(slimb_t a1, unsigned int radix, int is_inv,
+//                           int is_ceil1);
 
 /* transcendental functions */
 WEBASSEMBLY_EXPORT int bf_const_log2(bf_t *T, limb_t prec, bf_flags_t flags);
