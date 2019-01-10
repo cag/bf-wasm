@@ -221,6 +221,81 @@ module.exports = function(wasmInstance, memUtils) {
       return res;
     }
 
+    toIEEE754Hex(opts) {
+      const { prec, expnBits } = normalizeOptionsObject(opts);
+      const biasedExpnLimit = Math.pow(2, expnBits);
+
+      const signBit = this.sign ? 1 : 0;
+      let skipFirstFracBit = true;
+      let extraFracZeroes = 0;
+      let biasedExpn;
+      if (this.expn === bf.expnZero) biasedExpn = 0;
+      else if (this.expn === bf.expnInf || this.expn === bf.expnNaN)
+        biasedExpn = biasedExpnLimit - 1;
+      else {
+        const expnBias = Math.pow(2, expnBits - 1) - 2;
+        biasedExpn = this.expn + expnBias;
+        if (biasedExpn <= 0 && biasedExpn > 1 - prec) {
+          extraFracZeroes = -biasedExpn;
+          skipFirstFracBit = false;
+          biasedExpn = 0;
+        } else if (biasedExpn >= biasedExpnLimit)
+          throw new Error(
+            `can't represent ${this.toString()} as IEEE 754 given precision ${prec} and ${expnBits} exponent bits`
+          );
+      }
+
+      const resBuf = new ArrayBuffer(Math.ceil((prec + expnBits) / 8));
+      const resView = new DataView(resBuf);
+
+      const resHeader = ((signBit << expnBits) | biasedExpn) << (31 - expnBits);
+      resView.setInt32(0, resHeader);
+
+      const fracStart = Math.floor((expnBits + 1 + extraFracZeroes) / 8);
+      const fracStartOffset = (expnBits + 1 + extraFracZeroes) % 8;
+      if (this.expn === bf.expnNaN) {
+        resView.setUint8(
+          fracStart,
+          resView.getUint8(fracStart) | (0x80 >>> fracStartOffset)
+        );
+      } else if (this.tab != null) {
+        const tabBytes = new Uint8Array(
+          this.tab.buffer,
+          this.tab.byteOffset,
+          this.tab.byteLength
+        );
+        const byteOffset = skipFirstFracBit
+          ? fracStartOffset - 1
+          : fracStartOffset;
+        const byteMask = (1 << byteOffset) - 1;
+        resView.setUint8(
+          fracStart,
+          resView.getUint8(fracStart) |
+            ((tabBytes[tabBytes.length - 1] &
+              (skipFirstFracBit ? 0x7f : 0xff)) >>>
+              byteOffset)
+        );
+        for (
+          let i = 1;
+          i < tabBytes.length && fracStart + i < resView.byteLength;
+          i++
+        ) {
+          resView.setUint8(
+            fracStart + i,
+            ((tabBytes[tabBytes.length - i] & byteMask) << (8 - byteOffset)) |
+              (tabBytes[tabBytes.length - i - 1] >>> byteOffset)
+          );
+        }
+      }
+
+      return (
+        "0x" +
+        Array.from(new Uint8Array(resBuf))
+          .map(b => b.toString(16).padStart(2, "0"))
+          .join("")
+      );
+    }
+
     [inspectCustom](depth, options) {
       return `${options.stylize("bf", "name")}(${options.stylize(
         `'${this.toString()}'`,
@@ -236,6 +311,9 @@ module.exports = function(wasmInstance, memUtils) {
 
   bf.expnBitsMin = 3;
   bf.expnBitsMax = wordSize * 8 - 2;
+  bf.expnZero = -Math.pow(2, wordSize * 8 - 1);
+  bf.expnInf = Math.pow(2, wordSize * 8 - 1) - 2;
+  bf.expnNaN = Math.pow(2, wordSize * 8 - 1) - 1;
   bf.precMin = 2;
   bf.precMax = Math.pow(2, bf.expnBitsMax) - 2;
   bf.precInf = bf.precMax + 1;
