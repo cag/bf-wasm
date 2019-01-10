@@ -1,5 +1,5 @@
 {
-  "name": "bf-wasm",
+  "name": "big-float-wasm",
   "version": "1.0.0",
   "description": "Big floats via WASM",
   "main": "index.js",
